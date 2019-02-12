@@ -17,14 +17,27 @@ def made(form):
 
 
 def presentation(form):
-    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format('Год','Количество','Капитал','Счет','Место','Цена'))
-    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format('','клиентов','','в банке','на рынке','товара'))
+    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format('Год', 'Количество', 'Капитал', 'Счет', 'Место', 'Цена'))
+    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format('', 'клиентов', '', 'в банке', 'на рынке', 'товара'))
     print('='*77)
-    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format(form['год'],form["клиенты"],
-                                                        round(form["капитал"]),form["счёт в банке"],
-                                                        form["место на рынке"],form["цена товара"],
+    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format(form['год'], round(form["клиенты"]),
+                                                        round(form["капитал"]), form["счёт в банке"],
+                                                        form["место на рынке"], form["цена товара"],
                                                         form["год"]))
     print('-' * 77)
+
+
+def adding_customers(form, desk):
+    percent = random.choice([x for x in range(70, 101)]) / 100
+    change = percent * desk["привлечено"]
+    form["клиенты"] += change
+    print("год прошел успешно, реклама смогла привлечь " + str(change) + " новых клиентов\n")
+
+
+def year_change(form):
+    form["год"] += 1
+
+
 
 def score(money):
     percent = random.choice([item for item in range(110,120)]) / 100
@@ -45,10 +58,11 @@ table = {"клиенты": 375, "капитал": 32500, "счёт в банке
 
 
 for year in range(1000):
-    percent = random.choice([x for x in range(70, 101)]) / 100
     advert(table, ddd)
     made(table)
-    print("год прошел успешно, реклама смогла привлечь " + str(percent * ddd["привлечено"]) + " новых клиентов")
+    adding_customers(table, ddd)
+    year_change(table)
     presentation(table)
+
 
 
