@@ -5,8 +5,16 @@ def advert(form, desk):
     cost_advert = form["цена товара"] * 0.6
     message_1 = "Сколько клиентов привлечь по цене " + str(round(cost_advert)) + "$" + " за одного?"
     qs_1 = int(input(message_1))
+    start_capital = form["капитал"]
     form["капитал"] -= cost_advert * qs_1
     desk["привлечено"] = qs_1
+
+    while form["капитал"] < 0:
+        form["капитал"] = start_capital
+        print("Нельзя столько клиентов привлечь, капитала не хватает!")
+        qs_1 = int(input(message_1))
+        form["капитал"] -= cost_advert * qs_1
+        desk["привлечено"] = qs_1
 
 
 def made(form):
@@ -29,14 +37,13 @@ def presentation(form):
 
 def adding_customers(form, desk):
     percent = random.choice([x for x in range(70, 101)]) / 100
-    change = percent * desk["привлечено"]
+    change = round(percent * desk["привлечено"])
     form["клиенты"] += change
     print("год прошел успешно, реклама смогла привлечь " + str(change) + " новых клиентов\n")
 
 
 def year_change(form):
     form["год"] += 1
-
 
 
 def score(money):
@@ -50,9 +57,7 @@ table = {'год': 0, "клиенты": 375, "капитал": 32500, "счёт 
 presentation(table)
 cost_advert = table["цена товара"] * 0.6
 
-
 ddd = {"привлечено": 0}
-
 table = {"клиенты": 375, "капитал": 32500, "счёт в банке": 15000,
          "место на рынке": 148, "цена товара": 50, "год": 0}
 
