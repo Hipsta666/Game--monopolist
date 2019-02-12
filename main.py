@@ -26,15 +26,20 @@ def presentation(form):
                                                         form["год"]))
     print('-' * 77)
 
-def score(money):
+def score(form):
     percent = random.choice([item for item in range(110,120)]) / 100
-    money *= percent
-    return money
+    form["счёт в банке"] *= percent
+    return form
+
+def change_score(money):
+    cut = int(input('Сколько денег вы хотите снять с вашего счета в банке?'))
+    money -= cut
+    add = int(input('Сколько денег вы хотите положить на ваш счет в банке?'))
+    money += add
 
 
 table = {'год': 0, "клиенты": 375, "капитал": 32500, "счёт в банке": 15000,
          "место на рынке": 148, "цена товара": 50}
-presentation(table)
 cost_advert = table["цена товара"] * 0.6
 
 
@@ -45,10 +50,12 @@ table = {"клиенты": 375, "капитал": 32500, "счёт в банке
 
 
 for year in range(1000):
+    presentation(table)
     percent = random.choice([x for x in range(70, 101)]) / 100
     advert(table, ddd)
     made(table)
     print("год прошел успешно, реклама смогла привлечь " + str(percent * ddd["привлечено"]) + " новых клиентов")
-    presentation(table)
+    score(table)
+
 
 
