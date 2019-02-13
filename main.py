@@ -35,14 +35,13 @@ def made(form, desk):
 
 
 def presentation(form):
-    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format('Год', 'Количество', 'Капитал', 'Счет', 'Место', 'Цена'))
-    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format('', 'клиентов', '', 'в банке', 'на рынке', 'товара'))
-    print('='*77)
-    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^10}|'.format(form['год'], round(form["клиенты"]),
+    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^12}|{:^10}|'.format('Год', 'Количество', 'Капитал', 'Счет', 'Место','Рыночный', 'Цена'))
+    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^12}|{:^10}|'.format('', 'клиентов', '', 'в банке', 'на рынке','спрос', 'товара'))
+    print('='*90)
+    print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^12}|{:^10}|'.format(form['год'], round(form["клиенты"]),
                                                         round(form["капитал"]), form["счёт в банке"],
-                                                        form["место на рынке"], form["цена товара"],
-                                                        form["год"]))
-    print('-' * 77)
+                                                        form["место на рынке"], form["количество людей"],form["цена товара"]))
+    print('-' *90)
 
 
 def score(form):
@@ -65,7 +64,6 @@ def add_score(form):
     add = int(input('Сколько денег вы хотите положить на ваш счет в банке?'))
     form["капитал"] -= add
     form["счёт в банке"] += add
-    presentation(form)
 
 
 def free_production(form, desk):
@@ -78,6 +76,7 @@ def adding_customers(form, desk):
     change = round(percent * desk["привлечено"])
     desk["потенциальные клиенты"] = change
     production_capability = round(free_production(form, desk) / 2)
+    desk["приход"] = production_capability
     if (production_capability - change) < 0:
         form["клиенты"] += production_capability
         print("реклама сработала плохо, ушло " + str((-1) * production_capability) + " клиентов\n")
@@ -86,17 +85,33 @@ def adding_customers(form, desk):
         print("год прошел успешно, реклама смогла привлечь " + str(change) + " новых клиентов\n")
 
 
+def demand(form,desk):
+    add_1 = random.choice([x for x in range(50,100)])
+    form["количество людей"] += add_1
+    desk["изменение спроса"] = add_1
+
+
+def place(form,desk):
+    demand(form,desk)
+    change_1 = desk["приход"] - desk["изменение спроса"]
+    if change_1 < 0:
+        change_place = round(change_1 / 10)
+        if 148 - form["место на рынке"] < (-1) * change_place:
+            form["место на рынке"] = 148
+        else:
+            form["место на рынке"] += change_place
+    elif change_1 > 0:
+        change_place = round(change_1 / 10)
+        form["место на рынке"] -= change_place
+
 table = {'год': 0, "клиенты": 375, "капитал": 32500, "счёт в банке": 15000,
-         "место на рынке": 148, "цена товара": 50}
+         "место на рынке": 148, "цена товара": 50, "количество людей":20000}
+
 cost_advert = table["цена товара"] * 0.6
 presentation(table)
 
 
-ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0}
-
-ddd = {"привлечено": 0}
-table = {"клиенты": 375, "капитал": 32500, "счёт в банке": 15000,
-         "место на рынке": 148, "цена товара": 50, "год": 0}
+ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0, "изменение спроса": 0, "приход": 0}
 
 
 for year in range(1000):
@@ -106,6 +121,6 @@ for year in range(1000):
     adding_customers(table, ddd)
     year_change(table)
     score(table)
-    presentation(table)
     add_score(table)
-
+    place(table,ddd)
+    presentation(table)
