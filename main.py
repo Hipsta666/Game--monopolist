@@ -2,7 +2,8 @@ import random
 
 
 def advert(form, desk):
-    cost = form["цена товара"] * 0.6
+    cost = desk["цена рекламы"]
+    desk["цена товара"] = cost
     message_1 = "Сколько клиентов привлечь по цене " + str(round(cost)) + "$" + " за одного?"
     qs_1 = int(input(message_1))
     start_capital = form["капитал"]
@@ -19,7 +20,7 @@ def advert(form, desk):
 
 def made(form, desk):
     if form["капитал"] > 0:
-        cost_made = form["цена товара"] * 0.2
+        cost_made = desk["цена производства"]
         message_2 = "Сколько произвести товара по цене " + str(round(cost_made)) + "$" + "?"
         qs_2 = int(input(message_2))
         desk["производство"] = qs_2
@@ -56,13 +57,14 @@ def year_change(form):
 
 
 def cut_score(form):
+    presentation(form)
     cut = int(input('Денег не хватает! Сколько денег вы хотите снять с вашего счета в банке?'))
+
     while cut > form["счёт в банке"]:
         print("В банке нет столько денег!")
         cut = int(input('Сколько денег вы хотите снять с вашего счета в банке?'))
     form["счёт в банке"] -= cut
     form["капитал"] += cut
-    presentation(form)
 
 
 def add_score(form):
@@ -111,7 +113,7 @@ def negative_capital(form):
 
 
 def demand(form, desk):
-    add_1 = random.choice([x for x in range(150, 250)])
+    add_1 = random.choice([x for x in range(desk["спрос +от"], desk["спрос +до"])])
     form["количество людей"] += add_1
     desk["изменение спроса"] = add_1
 
@@ -128,34 +130,62 @@ def place(form, desk):
         form["место на рынке"] -= change_place
 
 
-def main():
-    table = {'год': 0, "клиенты": 375, "капитал": 32500, "счёт в банке": 15000,
-             "место на рынке": 148, "цена товара": 60, "количество людей": 20000}
 
-    ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0, "изменение спроса": 0, "приход": 0,
-           "процент в банке": 1.10, "ушло клиентов": 0}
 
-    presentation(table)
+def monopolist(form, desk):
+    presentation(form)
 
     for year in range(1000):
-        advert(table, ddd)
-        presentation(table)
-        made(table, ddd)
-        presentation(table)
-        negative_capital(table)
-        free_production(table, ddd)
-        adding_customers(table, ddd)
-        place(table, ddd)
-        year_change(table)
-        score(table, ddd)
-        presentation(table)
-        if table["клиенты"] <= 0:
+        """
+        
+        
+        Тут должны быть функции событий
+        
+        
+        """
+        advert(form, desk)
+        presentation(form)
+        made(form, desk)
+        negative_capital(form)
+        free_production(form, desk)
+        adding_customers(form, desk)
+        place(form, desk)
+        if form["место на рынке"] <= 1:
+            form["место на рынке"] = 1
+            print("Ты стал монополистом, поздравляю!!!")
+            presentation()
+            break
+        year_change(form)
+        score(form, desk)
+        presentation(form)
+        if form["клиенты"] <= 0:
             print("Ты проиграл!")
             break
-        if negative_capital(table):
+        if negative_capital(form):
             break
-        add_score(table)
-        presentation(table)
+        add_score(form)
+        presentation(form)
+
+
+def main():
+    lvl = input("Выберите уровень сложности (лёгкий/сложный):")
+    if lvl == "лёгкий":
+        table = {'год': 0, "клиенты": 201, "капитал": 25430, "счёт в банке": 12000,
+                 "место на рынке": 89, "цена товара": 80, "количество людей": 8312}
+
+        ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0, "изменение спроса": 0, "приход": 0,
+               "процент в банке": 1.10, "ушло клиентов": 0, "цена производства": table["цена товара"] * 0.15,
+               "цена рекламы": table["цена товара"] * 0.5, "спрос +от": 80, "спрос +до": 120}
+        monopolist(table, ddd)
+
+    if lvl == "сложный":
+        table = {'год': 0, "клиенты": 375, "капитал": 36800, "счёт в банке": 15000,
+                 "место на рынке": 148, "цена товара": 70, "количество людей": 19437}
+
+        ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0, "изменение спроса": 0, "приход": 0,
+               "процент в банке": 1.10, "ушло клиентов": 0, "цена производства": table["цена товара"] * 0.2,
+               "цена рекламы": table["цена товара"] * 0.6, "спрос +от": 150, "спрос +до": 250}
+        monopolist(table, ddd)
 
 
 main()
