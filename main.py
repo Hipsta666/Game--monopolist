@@ -105,7 +105,7 @@ def adding_customers(form, desk):
     if (production_capability - change) < 0:
         form["клиенты"] += production_capability
         form["капитал"] += form["клиенты"] * form["цена товара"]
-        if production_capability < 0:
+        if production_capability <= 0:
             print("реклама сработала плохо, ушло " + str((-1) * production_capability) + " клиентов\n")
             desk["приход"] = production_capability
         else:
@@ -114,7 +114,7 @@ def adding_customers(form, desk):
     elif (production_capability - change) >= 0:
         form["клиенты"] += change
         form["капитал"] += form["клиенты"] * form["цена товара"]
-        if change < 0:
+        if change <= 0:
             print("реклама сработала плохо, ушло " + str((-1) * change) + " клиентов\n")
             desk["приход"] = change
         else:
@@ -157,10 +157,31 @@ def place(form, desk):
         form["место на рынке"] -= change_place
 
 
+def cost_advert(form, desk):
+    desk["цена рекламы"] = random.choice([x for x in range(round(desk["цена рекламы"]) - 2,
+                                                           round(desk["цена рекламы"]) + 2)])
+    x = desk["начальное место"]
+    y = desk["цена рекламы"]
+    string_1 = "Вы понижаете свой рыночный рейтинг, рекламная компания решила сделать вам скидку на рекламу."
+    string_2 = "Реклама работает успешно, поэтому рекламная компания подниамет цену на рекламу."
+    if form["год"] == 5 and form["место на рынке"] <= x:
+        desk["цена рекламы"] = round(y * 0.8)
+        print(string_1)
+    if form["год"] == 7 and form["место на рынке"] <= x:
+        desk["цена рекламы"] = round(y * 0.8)
+        print(string_1)
+    if form["год"] == 5 and form["место на рынке"] >= x * 1.2:
+        desk["цена рекламы"] = round(y * 1.1)
+        print(string_2)
+    if form["год"] == 10 and form["место на рынке"] >= x * 1.4:
+        desk["цена рекламы"] = round(y * 1.1)
+        print(string_2)
+
+
 def monopolist(form, desk):
     presentation(form)
-
     for year in range(1000):
+        cost_advert(form, desk)         # Собитие - рыночный рейтинг падает
         """
         
         
@@ -175,13 +196,12 @@ def monopolist(form, desk):
         free_production(form, desk)
         adding_customers(form, desk)
         place(form, desk)
-        if form["место на рынке"] <= 1:
+        if form["место на рынке"] <= 1 or form["количество людей"] == form["клиенты"]:
             form["место на рынке"] = 1
             print("Ты стал монополистом, поздравляю!!!")
             presentation(form)
             break
         year_change(form)
-        print(desk["спрос +от"])
         score(form, desk)
         presentation(form)
         if form["клиенты"] <= 0:
@@ -191,7 +211,6 @@ def monopolist(form, desk):
             break
         add_score(form)
         presentation(form)
-
 
 
 def main():
@@ -204,16 +223,17 @@ def main():
 
         ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0, "изменение спроса": 0, "приход": 0,
                "процент в банке": 1.10, "ушло клиентов": 0, "цена производства": table["цена товара"] * 0.15,
-               "цена рекламы": table["цена товара"] * 0.5, "спрос +от": 80, "спрос +до": 120}
+               "цена рекламы": table["цена товара"] * 0.5, "спрос +от": 80, "спрос +до": 120,
+               "начальное место": table["место на рынке"]}
         monopolist(table, ddd)
-
     if lvl == "сложный":
         table = {'год': 0, "клиенты": 375, "капитал": 36800, "счёт в банке": 15000,
                  "место на рынке": 1231, "цена товара": 70, "количество людей": 19437}
 
         ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0, "изменение спроса": 0, "приход": 0,
                "процент в банке": 1.10, "ушло клиентов": 0, "цена производства": table["цена товара"] * 0.2,
-               "цена рекламы": table["цена товара"] * 0.6, "спрос +от": 150, "спрос +до": 250}
+               "цена рекламы": table["цена товара"] * 0.6, "спрос +от": 150, "спрос +до": 250,
+               "начальное место": table["место на рынке"]}
         monopolist(table, ddd)
 
 
