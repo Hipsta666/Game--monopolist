@@ -1,11 +1,19 @@
 import random
 
+def exception(message):
+    try:
+        x = input(message)
+        return int(x)
+    except ValueError:
+        print('Вы ввели не число. За вами уже выехали!')
+        return exception(message)
+
 
 def advert(form, desk):
     cost = desk["цена рекламы"]
     desk["цена товара"] = cost
     message_1 = "Сколько клиентов привлечь по цене " + str(round(cost)) + "$" + " за одного?"
-    qs_1 = int(input(message_1))
+    qs_1 = exception(message_1)
     start_capital = form["капитал"]
     form["капитал"] -= cost * qs_1
     desk["привлечено"] = qs_1
@@ -13,7 +21,7 @@ def advert(form, desk):
     while form["капитал"] < 0:
         form["капитал"] = start_capital
         print("Нельзя столько клиентов привлечь, капитала не хватает!")
-        qs_1 = int(input(message_1))
+        qs_1 = exception(message_1)
         form["капитал"] -= cost * qs_1
         desk["привлечено"] = qs_1
 
@@ -22,7 +30,7 @@ def made(form, desk):
     if form["капитал"] > 0:
         cost_made = desk["цена производства"]
         message_2 = "Сколько произвести товара по цене " + str(round(cost_made)) + "$" + "?"
-        qs_2 = int(input(message_2))
+        qs_2 = exception(message_2)
         desk["производство"] = qs_2
         form["капитал"] -= cost_made * qs_2
     else:
@@ -31,7 +39,7 @@ def made(form, desk):
         cut_score(form)
         print('Отлично! У вас появились деньги!\n')
         message_2 = "Сколько произвести товара по цене " + str(round(cost_made)) + "$" + "?"
-        qs_2 = int(input(message_2))
+        qs_2 = exception(message_2)
         form["капитал"] -= cost_made * qs_2
 
 
@@ -76,17 +84,21 @@ def year_change(form):
 
 def cut_score(form):
     presentation(form)
-    cut = int(input('Денег не хватает! Сколько денег вы хотите снять с вашего счета в банке?'))
+    cut = exception('Денег не хватает! Сколько денег вы хотите снять с вашего счета в банке?')
+    while cut < 0:
+        add = exception('Введите положительное число:')
 
     while cut > form["счёт в банке"]:
         print("В банке нет столько денег!")
-        cut = int(input('Сколько денег вы хотите снять с вашего счета в банке?'))
+        cut = exception('Сколько денег вы хотите снять с вашего счета в банке?')
     form["счёт в банке"] -= cut
     form["капитал"] += cut
 
 
 def add_score(form):
-    add = int(input('Сколько денег вы хотите положить на ваш счет в банке?'))
+    add = exception('Сколько денег вы хотите положить на ваш счет в банке?')
+    while add < 0:
+        add = exception('Введите положительное число:')
     form["капитал"] -= add
     form["счёт в банке"] += add
 
