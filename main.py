@@ -1,19 +1,28 @@
 import random
 
 
+def exception(message):
+    try:
+        x = input(message)
+        return int(x)
+    except ValueError:
+        print('Вы ввели не число. За вами уже выехали!')
+        return exception(message)
+
+
 def advert(form, desk):
     cost = desk["цена рекламы"]
     desk["цена товара"] = cost
     message_1 = "Сколько клиентов привлечь по цене " + str(round(cost)) + "$" + " за одного?"
-    qs_1 = int(input(message_1))
+    qs_1 = exception(message_1)
     start_capital = form["капитал"]
     form["капитал"] -= cost * qs_1
     desk["привлечено"] = qs_1
 
     while form["капитал"] < 0:
         form["капитал"] = start_capital
-        print("Нельзя привелечь столько клиентов, капитала не хватает!")
-        qs_1 = int(input(message_1))
+        print("Нельзя столько клиентов привлечь, капитала не хватает!")
+        qs_1 = exception(message_1)
         form["капитал"] -= cost * qs_1
         desk["привлечено"] = qs_1
 
@@ -22,7 +31,7 @@ def made(form, desk):
     if form["капитал"] > 0:
         cost_made = desk["цена производства"]
         message_2 = "Сколько произвести товара по цене " + str(round(cost_made)) + "$" + "?"
-        qs_2 = int(input(message_2))
+        qs_2 = exception(message_2)
         desk["производство"] = qs_2
         form["капитал"] -= cost_made * qs_2
     else:
@@ -31,7 +40,7 @@ def made(form, desk):
         cut_score(form)
         print('Отлично! У вас появились деньги!\n')
         message_2 = "Сколько произвести товара по цене " + str(round(cost_made)) + "$" + "?"
-        qs_2 = int(input(message_2))
+        qs_2 = exception(message_2)
         form["капитал"] -= cost_made * qs_2
 
 
@@ -47,7 +56,7 @@ def presentation(form):
     print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^12}|{:^10}|'.format('',
                                                                      'клиентов',
                                                                      '',
-                                                                     'в банке' + " 10%",
+                                                                     'в банке, 10%',
                                                                      'на рынке',
                                                                      'спрос',
                                                                      'товара'))
@@ -55,11 +64,11 @@ def presentation(form):
     print('|{:^6}|{:^12}|{:^16}|{:^16}|{:^10}|{:^12}|{:^10}|'.format(
         form['год'],
         round(form["клиенты"]),
-        round(form["капитал"]),
-        form["счёт в банке"],
+        str(round(form["капитал"])) + "$",
+        str(form["счёт в банке"]) + "$",
         form["место на рынке"],
-        form["количество людей"],
-        form["цена товара"])
+        round(form["количество людей"]),
+        str(round(form["цена товара"])) + "$")
     )
     print('-' * 90)
     print("")
@@ -76,17 +85,21 @@ def year_change(form):
 
 def cut_score(form):
     presentation(form)
-    cut = int(input('Денег не хватает! Сколько денег вы хотите снять с вашего счета в банке?'))
+    cut = exception('Денег не хватает! Сколько денег вы хотите снять с вашего счета в банке?')
+    while cut < 0:
+        add = exception('Введите неотрицательное число:')
 
     while cut > form["счёт в банке"]:
         print("В банке нет столько денег!")
-        cut = int(input('Сколько денег вы хотите снять с вашего счета в банке?'))
+        cut = exception('Сколько денег вы хотите снять с вашего счета в банке?')
     form["счёт в банке"] -= cut
     form["капитал"] += cut
 
 
 def add_score(form):
-    add = int(input('Сколько денег вы хотите положить на ваш счет в банке?'))
+    add = exception('Сколько денег вы хотите положить на ваш счет в банке?')
+    while add < 0:
+        add = exception('Введите положительное число:')
     form["капитал"] -= add
     form["счёт в банке"] += add
 
@@ -132,22 +145,40 @@ def negative_capital(form):
 
 def demand_add(form, desk, year):
     if form["год"] >= year and year % 2 == 0:
-        if year < 11:
-            desk["спрос +от"] += 70
-            desk["спрос +до"] += 70
-        elif 11 <= year <= 21:
-            desk["спрос +от"] += 140
-            desk["спрос +до"] += 140
+        if year < 6:
+            desk["спрос +от"] += 40
+            desk["спрос +до"] += 40
+        elif 6 <= year <= 12:
+            desk["спрос +от"] += 180
+            desk["спрос +до"] += 180
+        elif 12 <= year <= 24:
+            desk["спрос +от"] += 500
+            desk["спрос +до"] += 555
+
+
+def crisis(form, desk):
+    if str(form["год"]) in "3 6" and form["капитал"] > desk["начальный капиал"] * 2.5:
+        print("Важное сообщение! На рынке ... произошёл кризис! К сожалению, он не обошёл вас стороной.\n"
+              "В следствии чего вы потерпели потери клиентской базы, цена производства возрасла, как и цена рекламы,\n"
+              " а цена товара напротив - снизилась,\n также увеличилось количество покупателей на рынке!\n "
+              "К несчастью, эти факторы повлияли на ваше место на рынке.\n"
+              "Думаю, вы в силай с этим справиться.")
+        form["клиенты"] *= 0.65
+        desk["цена производства"] *= 1.5
+        desk["цена рекламы"] *= 1.2
+        form["цена товара"] *= 0.9
+        form["количество людей"] *= 1.15
 
 
 def demand(form, desk):
-    demand_add(form, desk, 4)
+    demand_add(form, desk, 2)
     add_1 = random.choice([x for x in range(desk["спрос +от"], desk["спрос +до"])])
     form["количество людей"] += add_1
     desk["изменение спроса"] = add_1
 
 
 def place(form, desk):
+    crisis(form, desk)
     demand(form, desk)
 
     change_1 = desk["приход"] - desk["изменение спроса"]
@@ -161,8 +192,8 @@ def place(form, desk):
 
 
 def cost_advert(form, desk):
-    desk["цена рекламы"] = random.choice([x for x in range(round(desk["цена рекламы"]) - 2,
-                                                           round(desk["цена рекламы"]) + 2)])
+    desk["цена рекламы"] = random.choice([x for x in range(round(desk["цена рекламы"]) - 4,
+                                                           round(desk["цена рекламы"]) + 5)])
     x = desk["начальное место"]
     y = desk["цена рекламы"]
     string_1 = "Вы понижаете свой рыночный рейтинг, рекламная компания решила сделать вам скидку на рекламу."
@@ -181,9 +212,11 @@ def cost_advert(form, desk):
         print(string_2)
 
 
+
 def monopolist(form, desk):
     presentation(form)
     for year in range(1000):
+
         cost_advert(form, desk)         # Собитие - рыночный рейтинг падает
         """
         
@@ -205,7 +238,6 @@ def monopolist(form, desk):
             presentation(form)
             break
         year_change(form)
-        print(desk["спрос +от"], desk["спрос +до"])
         score(form, desk)
         presentation(form)
         if form["клиенты"] <= 0:
@@ -215,6 +247,9 @@ def monopolist(form, desk):
             break
         add_score(form)
         presentation(form)
+    print("")
+
+
 
 
 def main():
@@ -226,7 +261,7 @@ def main():
                  "место на рынке": 158, "цена товара": 80, "количество людей": 6312}
 
         ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0, "изменение спроса": 0, "приход": 0,
-               "процент в банке": 1.10, "ушло клиентов": 0, "цена производства": table["цена товара"] * 0.15,
+               "процент в банке": 1.10, "ушло клиентов": 0, "цена производства": 12,
                "цена рекламы": table["цена товара"] * 0.5, "спрос +от": 80, "спрос +до": 120,
                "начальное место": table["место на рынке"]}
         monopolist(table, ddd)
@@ -235,9 +270,9 @@ def main():
                  "место на рынке": 831, "цена товара": 70, "количество людей": 15990}
 
         ddd = {"привлечено": 0, "производство": 0, "потенциальные клиенты": 0, "изменение спроса": 0, "приход": 0,
-               "процент в банке": 1.10, "ушло клиентов": 0, "цена производства": table["цена товара"] * 0.2,
+               "процент в банке": 1.10, "ушло клиентов": 0, "цена производства": 14,
                "цена рекламы": table["цена товара"] * 0.6, "спрос +от": 150, "спрос +до": 250,
-               "начальное место": table["место на рынке"]}
+               "начальное место": table["место на рынке"], "начальный капитал": table["капитал"]}
         monopolist(table, ddd)
 
 
