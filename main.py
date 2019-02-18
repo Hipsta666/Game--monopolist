@@ -12,7 +12,7 @@ def advert(form, desk):
 
     while form["капитал"] < 0:
         form["капитал"] = start_capital
-        print("Нельзя столько клиентов привлечь, капитала не хватает!")
+        print("Нельзя привелечь столько клиентов, капитала не хватает!")
         qs_1 = int(input(message_1))
         form["капитал"] -= cost * qs_1
         desk["привлечено"] = qs_1
@@ -131,15 +131,17 @@ def negative_capital(form):
 
 
 def demand_add(form, desk, year):
-    if form["год"] == year:
-        desk["спрос +от"] += 50
-        desk["спрос +до"] += 50
+    if form["год"] >= year and year % 2 == 0:
+        if year < 11:
+            desk["спрос +от"] += 70
+            desk["спрос +до"] += 70
+        elif 11 <= year <= 21:
+            desk["спрос +от"] += 140
+            desk["спрос +до"] += 140
 
 
 def demand(form, desk):
-    demand_add(form, desk, 3)
-    demand_add(form, desk, 6)
-    demand_add(form, desk, 9)
+    demand_add(form, desk, 4)
     add_1 = random.choice([x for x in range(desk["спрос +от"], desk["спрос +до"])])
     form["количество людей"] += add_1
     desk["изменение спроса"] = add_1
@@ -147,6 +149,7 @@ def demand(form, desk):
 
 def place(form, desk):
     demand(form, desk)
+
     change_1 = desk["приход"] - desk["изменение спроса"]
     if change_1 < 0 and change_1 <= (-1) * desk["изменение спроса"]:
         change_place = round(change_1 / 10)
@@ -202,6 +205,7 @@ def monopolist(form, desk):
             presentation(form)
             break
         year_change(form)
+        print(desk["спрос +от"], desk["спрос +до"])
         score(form, desk)
         presentation(form)
         if form["клиенты"] <= 0:
@@ -215,9 +219,9 @@ def monopolist(form, desk):
 
 def main():
     lvl = input("Выберите уровень сложности (лёгкий/сложный):")
-    while lvl not in "лёгкий сложный":
+    while lvl not in "лёгкий легкий сложный":
         lvl = input("Выберите уровень сложности (лёгкий/сложный):")
-    if lvl == "лёгкий":
+    if lvl in "лёгкий легкий":
         table = {'год': 0, "клиенты": 201, "капитал": 25430, "счёт в банке": 12000,
                  "место на рынке": 158, "цена товара": 80, "количество людей": 6312}
 
